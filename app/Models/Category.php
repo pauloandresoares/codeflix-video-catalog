@@ -21,7 +21,6 @@ class Category extends Model
 
     protected $dates = ['deleted_at'];
 
-    /** @var array força cast para exibir models, ao usar toArray*/
     protected $casts = [
         'id' => 'string',
         'is_active' => 'boolean'
