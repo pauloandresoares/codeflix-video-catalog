@@ -8,6 +8,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
+/**
+ * Class CategoryTest
+ * @package Tests\Feature\Models
+ * @group feature
+ * @group Category
+ * @group CategoryModel
+ */
 class CategoryTest extends TestCase
 {
 

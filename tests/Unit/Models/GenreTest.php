@@ -8,6 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class GenreTest
+ * @package Tests\Unit\Models
+ * @group unit
+ * @group Genre
+ * @group GenreModel
+ */
 class GenreTest extends TestCase
 {
     /**

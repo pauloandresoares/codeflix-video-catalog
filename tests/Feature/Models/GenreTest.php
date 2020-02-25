@@ -8,6 +8,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
+/**
+ * Class GenreTest
+ * @package Tests\Feature\Models
+ * @group feature
+ * @group Genre
+ * @group GenreModel
+ */
 class GenreTest extends TestCase
 {
 

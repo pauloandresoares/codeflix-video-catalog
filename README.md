@@ -2,3 +2,18 @@
 
 # CODEFLIX - Microserviço do catalogo de vídeo
 
+ 
+## Execução dos testes
+
+
+Execução normal
+
+```sh
+vendor/bin/phpunit -c phpunit.xml
+```
+
+Execução de um grupo específico 
+
+```sh
+vendor/bin/phpunit --group=<NOME DO GRUPO> -c phpunit.xml
+```

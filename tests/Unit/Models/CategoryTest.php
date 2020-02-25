@@ -8,6 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class CategoryTest
+ * @package Tests\Unit\Models
+ * @group unit
+ * @group Category
+ * @group CategoryModel
+ */
 class CategoryTest extends TestCase
 {
     /**
