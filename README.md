@@ -17,3 +17,9 @@ Execução de um grupo específico
 ```sh
 vendor/bin/phpunit --group=<NOME DO GRUPO> -c phpunit.xml
 ```
+
+## Execução do primeiro build
+
+Execução no google cloud build:
+
+![CI](.doc/gcloud-build.png)
