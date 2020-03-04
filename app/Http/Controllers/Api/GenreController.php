@@ -6,67 +6,25 @@ use App\Http\Controllers\Controller;
 use App\Models\Genre;
 use Illuminate\Http\Request;
 
-class GenreController extends Controller
+class GenreController extends BasicCrudController
 {
-
-    private $rules = [
+    protected $rules = [
         'name' => 'required|max:255',
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
     ];
 
-    /**
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    protected function model()
     {
-        return Genre::all();
+        return Genre::class;
     }
 
-
-    /**
-     * @param Request $request
-     * @return mixed
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function store(Request $request)
+    protected function rulesStore()
     {
-        $this->validate($request, $this->rules);
-        $genre = Genre::create($request->all());
-        $genre->refresh();
-        return $genre;
+        return $this->rules;
     }
 
-    /**
-     * @param  \App\Models\Genre  $genre
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Genre $genre) // Route Model Binding
+    protected function rulesUpdate()
     {
-        return $genre;
-    }
-
-
-    /**
-     * @param Request $request
-     * @param Genre $genre
-     * @return Genre
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function update(Request $request, Genre $genre)
-    {
-        $this->validate($request, $this->rules);
-        $genre->update($request->all());
-        return $genre;
-    }
-
-    /**
-     * @param Genre $genre
-     * @return \Illuminate\Http\Response
-     * @throws \Exception
-     */
-    public function destroy(Genre $genre)
-    {
-        $genre->delete();
-        return response()->noContent(); //204
+        return $this->rules;
     }
 }
