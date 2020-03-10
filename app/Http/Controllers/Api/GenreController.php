@@ -13,6 +13,11 @@ class GenreController extends BasicCrudController
         'is_active' => 'boolean',
     ];
 
+    protected function handleRelations($genre, Request $request){
+        /** @var Genre $genre */
+        $genre->categories()->sync($request->get('categories_id'));
+    }
+
     protected function model()
     {
         return Genre::class;
