@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Video extends Model
 {
-    use SoftDeletes, Uuid;
+    use Uuid, SoftDeletes;
 
     const RATING_LIST = ['L', '10', '12', '16', '18'];
 
