@@ -8,21 +8,24 @@ use App\Models\Video;
 use App\Rules\GenresHasCategoriesRule;
 use Illuminate\Http\Request;
 
-class VideoController extends BasicCrudRelationedController
+class VideoController extends BasicCrudController
 {
-    protected $rules;
+    /**
+     * @var array
+     */
+    private $rules = [];
 
     public function __construct()
     {
         $this->rules = [
             'title' => 'required|max:255',
             'description' => 'required',
-            'year_launched' => 'required|date_format:Y',
+            'year_launched' => 'required|date_format:Y|min:1',
             'opened' => 'boolean',
-            'rating' => 'required|in:'.implode(',', Video::RATING_LIST),
-            'duration' => 'required|integer',
+            'rating' => 'required|in:' . implode(',', Video::RATING_LIST),
+            'duration' => 'required|integer|min:1',
             'categories_id' => 'required|array|exists:categories,id,deleted_at,NULL',
-            'genres_id' => 'required|array|exists:genres,id,deleted_at,NULL',
+            'genres_id' => ['required', 'array', 'exists:genres,id,deleted_at,NULL'],
             'cast_members_id' => ['required', 'array', 'exists:cast_members,id,deleted_at,NULL'],
             'thumb_file' => 'image|max:' . Video::THUMB_FILE_MAX_SIZE, // 5MB
             'banner_file' => 'image|max:' . Video::BANNER_FILE_MAX_SIZE, // 10MB
@@ -36,12 +39,11 @@ class VideoController extends BasicCrudRelationedController
         $this->addRuleIfGenreHasCategories($request);
         $validatedData = $this->validate($request, $this->rulesStore());
 
-        $obj = $this->model()::create($validatedData);
-        $obj->refresh();
+        $model = $this->model()::create($validatedData);
 
         $resource = $this->resource();
-        return new $resource($obj);
 
+        return new $resource($model);
     }
 
     public function update(Request $request, $id)
@@ -62,39 +64,37 @@ class VideoController extends BasicCrudRelationedController
     {
         $categoriesId = $request->get('categories_id');
         $categoriesId = is_array($categoriesId) ? $categoriesId : [];
-        $this->rules['genres_id'][] = new GenresHasCategoriesRule(
-            $categoriesId
-        );
+
+        $this->rules['genres_id'][] = new GenresHasCategoriesRule($categoriesId);
     }
 
-    protected function handleRelations($video, Request $request){
-        /** @var Video $video */
-        $video->categories()->sync($request->get('categories_id'));
-        $video->genres()->sync($request->get('genres_id'));
-    }
-
-    protected function model()
+    protected function model(): string
     {
         return Video::class;
     }
 
-    protected function rulesStore()
+    protected function rulesStore(): array
     {
         return $this->rules;
     }
 
-    protected function rulesUpdate()
+    protected function rulesUpdate(): array
     {
         return $this->rules;
     }
 
-    protected function resource()
+    protected function resource(): string
     {
         return VideoResource::class;
     }
 
-    protected function resourceCollection()
+    protected function resourceCollection(): string
     {
-        return $this->resource();
+        return VideoResource::class;
+    }
+
+    protected function queryBuilder(): Builder
+    {
+        return parent::queryBuilder()->with(['genres.categories']);
     }
 }
