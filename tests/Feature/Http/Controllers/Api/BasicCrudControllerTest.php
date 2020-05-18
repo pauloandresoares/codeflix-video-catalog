@@ -126,7 +126,7 @@ class BasicCrudControllerTest extends TestCase
             ->once()
             ->andReturn(['name' => '']);
 
-        $this->controller->update($request, 0);
+        $this->controller->store($request);
     }
 
     public function testUpdate()
