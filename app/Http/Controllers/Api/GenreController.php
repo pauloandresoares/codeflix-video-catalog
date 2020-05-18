@@ -8,11 +8,13 @@ use Illuminate\Http\Request;
 
 class GenreController extends BasicCrudController
 {
-
+    /**
+     * @var array
+     */
     private $rules = [
         'name' => 'required|max:255',
         'is_active' => 'boolean',
-        'categories_id' => 'required|array|exists:categories,id,deleted_at,NULL'
+        'categories_id' => 'required|array|exists:categories,id,deleted_at,NULL',
     ];
 
     public function store(Request $request)
@@ -20,59 +22,68 @@ class GenreController extends BasicCrudController
         $validatedData = $this->validate($request, $this->rulesStore());
 
         $self = $this;
-        return \DB::transaction(function () use($self, $request, $validatedData){
-            $genre = $this->model()::create($validatedData);
-            $self->handleRelations($genre, $request);
-            $genre->refresh();
-            $resource = $this->resource();
-            return new $resource($genre);
+
+        /** @var Genre $model */
+        $model = \DB::transaction(function () use ($request, $validatedData, $self) {
+            $model = $this->model()::create($validatedData);
+            $self->handleRelations($model, $request);
+            $model->refresh();
+
+            return $model;
         });
+
+        $resource = $this->resource();
+
+        return new $resource($model);
     }
 
     public function update(Request $request, $id)
     {
-        $genre = $this->findOrFail($id);
-
         $validatedData = $this->validate($request, $this->rulesUpdate());
 
         $self = $this;
-        return \DB::transaction(function () use($self, $request, $genre, $validatedData){
-            $genre->update($validatedData);
-            $self->handleRelations($genre, $request);
-            $resource = $this->resource();
-            return new $resource($genre);
+
+        /** @var Genre $model */
+        $model = $this->findOrFail($id);
+        $model = \DB::transaction(function () use ($request, $validatedData, $self, $model) {
+            $model->update($validatedData);
+            $self->handleRelations($model, $request);
+
+            return $model;
         });
 
+        $resource = $this->resource();
 
+        return new $resource($model);
     }
 
-    protected function handleRelations($genre, Request $request)
+    protected function handleRelations(Genre $genre, Request $request)
     {
-        $genre->categories()->sync($request->post('categories_id'));
+        $genre->categories()->sync($request->get('categories_id'));
     }
 
-    protected function model()
+    protected function model(): string
     {
         return Genre::class;
     }
 
-    protected function rulesStore()
+    protected function rulesStore(): array
     {
         return $this->rules;
     }
 
-    protected function rulesUpdate()
+    protected function rulesUpdate(): array
     {
         return $this->rules;
     }
 
-    protected function resource()
+    protected function resource(): string
     {
         return GenreResource::class;
     }
 
-    protected function resourceCollection()
+    protected function resourceCollection(): string
     {
-        return $this->resource();
+        return GenreResource::class;
     }
 }
