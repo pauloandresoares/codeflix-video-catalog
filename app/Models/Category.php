@@ -21,7 +21,7 @@ class Category extends Model
         'is_active'
     ];
 
-        protected $dates = ['deleted_at'];
+    protected $dates = ['deleted_at'];
 
     protected $casts = [
         'id' => 'string',
