@@ -55,31 +55,34 @@ class GenreControllerTest extends TestCase
     public function testIndex()
     {
         $response = $this->get(route('genres.index'));
-
         $response
             ->assertStatus(200)
-            ->assertJsonFragment($this->genre->toArray())
+            ->assertJson([
+                'meta' => ['per_page' => 15]
+            ])
             ->assertJsonStructure([
                 'data' => [
-                    '*' => $this->fieldsSerialized,
+                    '*' => $this->fieldsSerialized
                 ],
                 'links' => [],
-                'meta' => [],
+                'meta' => []
             ]);
 
-        $this->assertResource($response, GenreResource::collection(collect([$this->genre])));
+        $resource = GenreResource::collection(collect([$this->genre]));
+        $this->assertResource($response, $resource);
     }
 
     public function testShow()
     {
         $response = $this->get(route('genres.show', ['genre' => $this->genre->id]));
-
         $response
             ->assertStatus(200)
-            ->assertJsonFragment($this->genre->toArray())
-            ->assertJsonStructure(['data' => $this->fieldsSerialized]);
+            ->assertJsonStructure([
+                'data' => $this->serializedFields
+            ]);
 
-        $this->assertResource($response, new GenreResource($this->genre));
+        $resource = $this->getResource($response, $this->model());
+        $this->assertResource($response, $resource);
     }
 
     public function testInvalidationData()
