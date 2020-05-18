@@ -78,7 +78,7 @@ class GenreControllerTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertJsonStructure([
-                'data' => $this->serializedFields
+                'data' => $this->fieldsSerialized
             ]);
 
         $resource = $this->getResource($response, $this->model());
