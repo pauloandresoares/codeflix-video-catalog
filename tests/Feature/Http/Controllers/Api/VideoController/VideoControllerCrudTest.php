@@ -13,6 +13,13 @@ use Tests\Feature\Traits\TestSaves;
 use Tests\Feature\Traits\TestValidations;
 use Tests\Traits\TestResources;
 
+/**
+ * Class VideoControllerCrudTest
+ * @package Tests\Feature\Http\Controllers\Api
+ * @group feature
+ * @group Video
+ * @group VideoControllerCrud
+ */
 class VideoControllerCrudTest extends BaseVideoControllerTestCase
 {
     use  TestValidations, TestSaves, TestDeletes, TestResources;
