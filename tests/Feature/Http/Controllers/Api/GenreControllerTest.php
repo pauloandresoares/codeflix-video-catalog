@@ -48,8 +48,8 @@ class GenreControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->genre = factory(Genre::class)->create();
+        $this->genre->refresh();
     }
 
     public function testIndex()
