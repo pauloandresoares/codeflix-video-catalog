@@ -4,85 +4,57 @@ namespace Tests\Feature\Models;
 
 use App\Models\Category;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-/**
- * Class CategoryTest
- * @package Tests\Feature\Models
- * @group feature
- * @group Category
- * @group CategoryModel
- */
 class CategoryTest extends TestCase
 {
-
     use DatabaseMigrations;
 
     public function testList()
     {
-        $category = Category::create([
-            'name' => 'test1'
-        ]);
+        factory(Category::class, 1)->create();
         $categories = Category::all();
+
         $this->assertCount(1, $categories);
 
-        $categoryKeys = array_keys($categories->first()->getAttributes());
-        $this->assertEqualsCanonicalizing([
-            'id',
-            'name',
-            'description',
-            'is_active',
-            'created_at',
-            'updated_at',
-            'deleted_at',
-        ], $categoryKeys);
+        $categoryKey = array_keys($categories->first()->getAttributes());
+
+        $this->assertEqualsCanonicalizing(
+            [
+                'id',
+                'name',
+                'description',
+                'is_active',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ],
+            $categoryKey
+        );
     }
 
     public function testCreate()
     {
-        $category = Category::create([
-            'name' => 'test1'
-        ]);
+        $category = Category::create(['name' => 'test_name']);
         $category->refresh();
 
+        $this->assertIsString($category->id);
         $this->assertEquals(36, strlen($category->id));
-        $this->assertEquals('test1', $category->name);
-        $this->assertNull( $category->description );
-        $this->assertTrue( $category->is_active );
+        $this->assertEquals('test_name', $category->name);
+        $this->assertNull($category->description);
+        $this->assertTrue($category->is_active);
 
-        $category = Category::create([
-            'name' => 'test1',
-            'description' => null
-        ]);
+        $category = Category::create(['name' => 'test_name', 'description' => null]);
+        $this->assertNull($category->description);
 
-        $this->assertNull( $category->description );
+        $category = Category::create(['name' => 'test_name', 'description' => 'test_description']);
+        $this->assertEquals('test_description', $category->description);
 
+        $category = Category::create(['name' => 'test_name', 'is_active' => true]);
+        $this->assertTrue($category->is_active);
 
-        $category = Category::create([
-            'name' => 'test1',
-            'description' => 'test_description'
-        ]);
-
-        $this->assertEquals('test_description',  $category->description );
-
-        $category = Category::create([
-            'name' => 'test1',
-            'is_active' => false
-        ]);
-        $category->refresh();
-
-        $this->assertFalse( $category->is_active );
-
-        $category = Category::create([
-            'name' => 'test1',
-            'is_active' => true
-        ]);
-        $category->refresh();
-
-        $this->assertTrue($category->is_active );
-
+        $category = Category::create(['name' => 'test_name', 'is_active' => false]);
+        $this->assertFalse($category->is_active);
     }
 
     public function testUpdate()
@@ -107,6 +79,7 @@ class CategoryTest extends TestCase
 
     public function testDelete()
     {
+        /** @var Category $category */
         $category = factory(Category::class)->create();
 
         $category->delete();

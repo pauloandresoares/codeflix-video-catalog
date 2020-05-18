@@ -2,35 +2,32 @@
 
 namespace App\Models;
 
+use App\ModelFilters\CasMemberFilter;
 use App\Models\Traits\Uuid;
+use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CastMember extends Model
 {
-    use Uuid, SoftDeletes;
+    use SoftDeletes, Uuid, Filterable;
 
     const TYPE_DIRECTOR = 1;
     const TYPE_ACTOR = 2;
 
-    protected $fillable = [
-        'name',
-        'type'
-    ];
-
-    public static $typesList = [
+    public static $types = [
         self::TYPE_DIRECTOR,
-        self::TYPE_ACTOR
-    ];
-
-    protected $dates = [
-        'deleted_at'
-    ];
-
-    protected $casts = [
-        'id' => 'string',
-        'type' => 'integer'
+        self::TYPE_ACTOR,
     ];
 
     public $incrementing = false;
+
+    protected $fillable = ['name', 'type'];
+    protected $dates = ['deleted_at'];
+    protected $casts = ['id' => 'string'];
+
+    public function modelFilter()
+    {
+        return $this->provideFilter(CasMemberFilter::class);
+    }
 }

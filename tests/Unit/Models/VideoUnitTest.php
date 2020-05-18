@@ -2,21 +2,40 @@
 
 namespace Tests\Unit\Models;
 
+use App\Models\Traits\UploadFiles;
 use App\Models\Traits\Uuid;
 use App\Models\Video;
+use EloquentFilter\Filterable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Tests\TestCase;
 
-/**
- * Class GenreTest
- * @package Tests\Unit\Models
- * @group unit
- * @group Video
- * @group VideoModel
- */
 class VideoUnitTest extends TestCase
 {
+    /**
+     * @var Video
+     */
     private $video;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->video = new Video();
+    }
+
+    public function testIfExtendsModelFromEloquent()
+    {
+        $this->assertInstanceOf(Model::class, $this->video);
+    }
+
+    public function testIfUseTraits()
+    {
+        $traits = [SoftDeletes::class, Uuid::class, UploadFiles::class, Filterable::class];
+        $videoTraits = array_keys(class_uses(Video::class));
+
+        $this->assertEquals($traits, $videoTraits);
+    }
 
     public function testFillableAttribute()
     {
@@ -26,48 +45,42 @@ class VideoUnitTest extends TestCase
             'year_launched',
             'opened',
             'rating',
-            'duration'
+            'duration',
+            'thumb_file',
+            'banner_file',
+            'trailer_file',
+            'video_file',
         ];
+
         $this->assertEquals($fillable, $this->video->getFillable());
+    }
+
+    public function testDatesAttribute()
+    {
+        $dates = ['created_at', 'updated_at', 'deleted_at'];
+
+        foreach ($dates as $date) {
+            $this->assertContains($date, $this->video->getDates());
+        }
+
+        $this->assertCount(count($dates), $this->video->getDates());
     }
 
     public function testCastsAttribute()
     {
         $casts = [
             'id' => 'string',
-            'opened' => 'boolean',
             'year_launched' => 'integer',
-            'duration' => 'integer'
+            'opened' => 'boolean',
+            'rating' => 'string',
+            'duration' => 'integer',
         ];
+
         $this->assertEquals($casts, $this->video->getCasts());
     }
 
-    public function testIncrementsAttribute()
+    public function testIncrementing()
     {
         $this->assertFalse($this->video->incrementing);
-    }
-
-    public function testDatesAttribute()
-    {
-        $dates = ["deleted_at", "created_at", "updated_at"];
-        $videoDates = $this->video->getDates();
-        $this->assertEqualsCanonicalizing($dates, $videoDates);
-    }
-
-    public function testIfUseTraits()
-    {
-        $traits = [
-            Uuid::class,
-            SoftDeletes::class,
-        ];
-        $videoTraits = array_values(class_uses(Video::class));
-
-        $this->assertEquals($traits, $videoTraits);
-    }
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->video = new Video();
     }
 }

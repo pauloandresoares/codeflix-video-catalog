@@ -4,28 +4,17 @@ namespace Tests\Unit\Models;
 
 use App\Models\Genre;
 use App\Models\Traits\Uuid;
+use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
-/**
- * Class GenreTest
- * @package Tests\Unit\Models
- * @group unit
- * @group Genre
- * @group GenreModel
- */
-class GenreTest extends TestCase
+class GenreUnitTest extends TestCase
 {
     /**
      * @var Genre
      */
     private $genre;
-
-    private $fillable = [
-        'name',
-        'is_active'
-    ];
 
     protected function setUp(): void
     {
@@ -41,15 +30,17 @@ class GenreTest extends TestCase
 
     public function testIfUseTraits()
     {
-        $traits = [SoftDeletes::class, Uuid::class];
-        $genreTraits = array_keys(class_uses(Genre::class));
+        $traits = [SoftDeletes::class, Uuid::class, Filterable::class];
+        $categoryTraits = array_keys(class_uses(Genre::class));
 
-        $this->assertEquals($traits, $genreTraits);
+        $this->assertEquals($traits, $categoryTraits);
     }
 
-    public function testFillable()
+    public function testFillableAttribute()
     {
-        $this->assertEquals($this->fillable, $this->genre->getFillable());
+        $fillable = ['name', 'is_active'];
+
+        $this->assertEquals($fillable, $this->genre->getFillable());
     }
 
     public function testDatesAttribute()
@@ -59,15 +50,14 @@ class GenreTest extends TestCase
         foreach ($dates as $date) {
             $this->assertContains($date, $this->genre->getDates());
         }
+
         $this->assertCount(count($dates), $this->genre->getDates());
     }
 
     public function testCastsAttribute()
     {
-        $casts = [
-            'id' => 'string',
-            'is_active' => 'boolean'
-        ];
+        $casts = ['id' => 'string', 'is_active' => 'boolean'];
+
         $this->assertEquals($casts, $this->genre->getCasts());
     }
 

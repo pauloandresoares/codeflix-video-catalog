@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\ModelFilters\CategoryFilter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Traits\Uuid;
@@ -25,4 +26,14 @@ class Category extends Model
         'id' => 'string',
         'is_active' => 'boolean'
     ];
+
+    public function genres()
+    {
+        return $this->belongsToMany(Genre::class);
+    }
+
+    public function modelFilter()
+    {
+        return $this->provideFilter(CategoryFilter::class);
+    }
 }

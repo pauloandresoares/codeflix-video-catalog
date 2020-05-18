@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
 abstract class BasicCrudController extends Controller
 {
+
+    protected $paginationSize = 15;
 
     protected abstract function model();
 
@@ -14,55 +17,62 @@ abstract class BasicCrudController extends Controller
 
     protected abstract function rulesUpdate();
 
-    protected function findOrFail($id)
-    {
-        $model = $this->model();
-        $keyName = (new $model)->getRouteKeyName();
+    protected abstract function resource();
 
-        return $this->model()::where($keyName, $id)->firstOrFail();
-    }
-
-    private $rules = [
-        'name' => 'required|max:255',
-        'is_active' => 'boolean'
-    ];
+    protected abstract function resourceCollection();
 
     public function index()
     {
-        return $this->model()::all();
-    }
+        $data = !$this->paginationSize ? $this->model()::all(): $this->model()::paginate($this->paginationSize);
 
-    public function store(Request $request)
-    {
-        $validatedDate = $this->validate($request, $this->rulesStore());
-        $obj = $this->model()::create($validatedDate);
-        $obj->refresh();
+        $resourceCollectionClass = $this->resourceCollection();
 
-        return $obj;
-    }
+        $refClass = new \ReflectionClass($this->resourceCollection());
 
-    public function update(Request $request, $id)
-    {
-        $obj = $this->findOrFail($id);
-        $validatedData = $this->validate($request, $this->rulesUpdate());
-        $obj->update($validatedData);
-
-        return $obj;
+        return $refClass->isSubclassOf( ResourceCollection::class)
+            ? new $resourceCollectionClass($data)
+            : $resourceCollectionClass::collection($data);
     }
 
     public function show($id)
     {
         $obj = $this->findOrFail($id);
+        $resource = $this->resource();
+        return new $resource($obj);
+    }
 
-        return $obj;
+    public function store(Request $request)
+    {
+        $validatedData = $this->validate($request, $this->rulesStore());
+        $obj = $this->model()::create($validatedData);
+        $obj->refresh();
+        $resource = $this->resource();
+        return new $resource($obj);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $model = $this->findOrFail($id);
+        $validatedData = $this->validate($request, $this->rulesUpdate());
+        $model->update($validatedData);
+        $resource = $this->resource();
+        return new $resource($model);
     }
 
     public function destroy($id)
     {
-        $obj = $this->findOrFail($id);
-        $obj->delete();
-
+        $model = $this->findOrFail($id);
+        $model->delete();
         return response()->noContent();
+    }
+
+    protected function findOrFail($id)
+    {
+        $model = $this->model();
+
+        /** Pega a key name para saber qual o meio de busca. Seja id ou slug */
+        $keyName = (new $model)->getRouteKeyName();
+        return $this->model()::where($keyName, $id)->firstOrFail();
     }
 
 }

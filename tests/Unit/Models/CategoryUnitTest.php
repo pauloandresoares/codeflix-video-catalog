@@ -4,29 +4,17 @@ namespace Tests\Unit\Models;
 
 use App\Models\Category;
 use App\Models\Traits\Uuid;
+use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
-/**
- * Class CategoryTest
- * @package Tests\Unit\Models
- * @group unit
- * @group Category
- * @group CategoryModel
- */
-class CategoryTest extends TestCase
+class CategoryUnitTest extends TestCase
 {
     /**
      * @var Category
      */
     private $category;
-
-    private $fillable = [
-        'name',
-        'description',
-        'is_active',
-    ];
 
     protected function setUp(): void
     {
@@ -42,15 +30,17 @@ class CategoryTest extends TestCase
 
     public function testIfUseTraits()
     {
-        $traits = [SoftDeletes::class, Uuid::class];
+        $traits = [SoftDeletes::class, Uuid::class, Filterable::class];
         $categoryTraits = array_keys(class_uses(Category::class));
 
         $this->assertEquals($traits, $categoryTraits);
     }
 
-    public function testFillable()
+    public function testFillableAttribute()
     {
-        $this->assertEquals($this->fillable, $this->category->getFillable());
+        $fillable = ['name', 'description', 'is_active'];
+
+        $this->assertEquals($fillable, $this->category->getFillable());
     }
 
     public function testDatesAttribute()
@@ -60,15 +50,14 @@ class CategoryTest extends TestCase
         foreach ($dates as $date) {
             $this->assertContains($date, $this->category->getDates());
         }
+
         $this->assertCount(count($dates), $this->category->getDates());
     }
 
     public function testCastsAttribute()
     {
-        $casts = [
-            'id' => 'string',
-            'is_active' => 'boolean'
-        ];
+        $casts = ['id' => 'string', 'is_active' => 'boolean'];
+
         $this->assertEquals($casts, $this->category->getCasts());
     }
 

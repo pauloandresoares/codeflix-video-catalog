@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\VideoResource;
+
 use App\Models\Video;
+use App\Rules\GenresHasCategoriesRule;
 use Illuminate\Http\Request;
 
 class VideoController extends BasicCrudRelationedController
@@ -20,9 +23,49 @@ class VideoController extends BasicCrudRelationedController
             'duration' => 'required|integer',
             'categories_id' => 'required|array|exists:categories,id,deleted_at,NULL',
             'genres_id' => 'required|array|exists:genres,id,deleted_at,NULL',
+            'cast_members_id' => ['required', 'array', 'exists:cast_members,id,deleted_at,NULL'],
+            'thumb_file' => 'image|max:' . Video::THUMB_FILE_MAX_SIZE, // 5MB
+            'banner_file' => 'image|max:' . Video::BANNER_FILE_MAX_SIZE, // 10MB
+            'trailer_file' => 'mimetypes:video/mp4|max:' . Video::TRAILER_FILE_MAX_SIZE, // 1GB
+            'video_file' => 'mimetypes:video/mp4|max:' . Video::VIDEO_FILE_MAX_SIZE, // 50GB
         ];
     }
 
+    public function store(Request $request)
+    {
+        $this->addRuleIfGenreHasCategories($request);
+        $validatedData = $this->validate($request, $this->rulesStore());
+
+        $obj = $this->model()::create($validatedData);
+        $obj->refresh();
+
+        $resource = $this->resource();
+        return new $resource($obj);
+
+    }
+
+    public function update(Request $request, $id)
+    {
+        $this->addRuleIfGenreHasCategories($request);
+        $validatedData = $this->validate($request, $this->rulesUpdate());
+
+        $obj = $this->findOrFail($id);
+
+        $model = $obj->update($validatedData);
+
+        $resource = $this->resource();
+
+        return new $resource($model);
+    }
+
+    protected function addRuleIfGenreHasCategories(Request $request)
+    {
+        $categoriesId = $request->get('categories_id');
+        $categoriesId = is_array($categoriesId) ? $categoriesId : [];
+        $this->rules['genres_id'][] = new GenresHasCategoriesRule(
+            $categoriesId
+        );
+    }
 
     protected function handleRelations($video, Request $request){
         /** @var Video $video */
@@ -43,5 +86,15 @@ class VideoController extends BasicCrudRelationedController
     protected function rulesUpdate()
     {
         return $this->rules;
+    }
+
+    protected function resource()
+    {
+        return VideoResource::class;
+    }
+
+    protected function resourceCollection()
+    {
+        return $this->resource();
     }
 }
