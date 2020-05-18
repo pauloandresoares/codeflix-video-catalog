@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\ModelFilters\CategoryFilter;
+use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Traits\Uuid;
@@ -10,7 +11,7 @@ use App\Models\Traits\Uuid;
 class Category extends Model
 {
 
-    use SoftDeletes, Uuid;
+    use SoftDeletes, Uuid, Filterable;
 
     public $incrementing = false;
 

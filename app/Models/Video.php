@@ -4,13 +4,14 @@ namespace App\Models;
 
 use App\Models\Traits\UploadFiles;
 use App\Models\Traits\Uuid;
+use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 class Video extends Model
 {
-    use SoftDeletes, Uuid, UploadFiles;
+    use SoftDeletes, Uuid, UploadFiles, Filterable;
 
     const RATING_LIST = ['L', '10', '12', '14', '16', '18'];
 
