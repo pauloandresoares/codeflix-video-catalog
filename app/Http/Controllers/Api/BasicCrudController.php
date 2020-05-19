@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use EloquentFilter\Filterable;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Database\Query\Builder;
 
