@@ -27,7 +27,7 @@ class GenreController extends BasicCrudController
             $self->handleRelations($genre, $request);
             $genre->refresh();
             $resource = $this->resource();
-            return new $resource($genre);
+            return new $resource($genre->load('categories'));
         });
     }
 
@@ -42,7 +42,7 @@ class GenreController extends BasicCrudController
             $genre->update($validatedData);
             $self->handleRelations($genre, $request);
             $resource = $this->resource();
-            return new $resource($genre);
+            return new $resource($genre->load('categories'));
         });
     }
 
