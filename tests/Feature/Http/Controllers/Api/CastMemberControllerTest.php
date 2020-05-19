@@ -12,6 +12,13 @@ use Tests\Feature\Traits\TestValidations;
 use Tests\TestCase;
 use Tests\Traits\TestResources;
 
+/**
+ * Class CastMemberTest
+ * @package Tests\Feature\Http\Controllers\Api
+ * @group feature
+ * @group CastMember
+ * @group CastMemberControllerCrud
+ */
 class CastMemberControllerTest extends TestCase
 {
     use DatabaseMigrations, TestValidations, TestSaves, TestDeletes, TestResources;

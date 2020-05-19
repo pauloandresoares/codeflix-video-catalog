@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\ModelFilters\CasMemberFilter;
+use App\ModelFilters\CastMemberFilter;
 use App\Models\Traits\Uuid;
 use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Model;
@@ -28,6 +29,6 @@ class CastMember extends Model
 
     public function modelFilter()
     {
-        return $this->provideFilter(CasMemberFilter::class);
+        return $this->provideFilter(CastMemberFilter::class);
     }
 }
