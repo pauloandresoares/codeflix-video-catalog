@@ -290,7 +290,7 @@ class GenreControllerTest extends TestCase
     {
         return Genre::class;
     }
-    
+
     function resource()
     {
         return GenreResource::class;
