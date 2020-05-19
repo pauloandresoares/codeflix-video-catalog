@@ -34,7 +34,7 @@ abstract class BasicCrudController extends Controller
             $query = $query->filter($request->all());
         }
 
-        $data = $request->has('all') || !$this->defaultPerPage
+        $data = $request->has('all') || !$this->paginationSize
             ? $query->get()
             : $query->paginate($perPage);
 
