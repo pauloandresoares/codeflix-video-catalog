@@ -42,6 +42,6 @@ class CastMemberController extends BasicCrudController
 
     protected function resourceCollection(): string
     {
-        return CastMemberResource::class;
+        return $this->resource();
     }
 }
