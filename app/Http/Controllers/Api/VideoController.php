@@ -93,8 +93,4 @@ class VideoController extends BasicCrudController
         return VideoResource::class;
     }
 
-    protected function queryBuilder(): Builder
-    {
-        return parent::queryBuilder()->with(['genres.categories']);
-    }
 }
