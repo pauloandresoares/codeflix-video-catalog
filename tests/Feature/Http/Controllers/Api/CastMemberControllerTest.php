@@ -33,8 +33,9 @@ class CastMemberControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->castMember = factory(CastMember::class)->create();
+        $this->castMember = factory(CastMember::class)->create([
+            'type' => CastMember::TYPE_DIRECTOR
+        ]);
     }
 
     public function testIndex()
