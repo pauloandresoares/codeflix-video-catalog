@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
-use PhpParser\Builder;
+use Illuminate\Database\Query\Builder;
 
 abstract class BasicCrudController extends Controller
 {
