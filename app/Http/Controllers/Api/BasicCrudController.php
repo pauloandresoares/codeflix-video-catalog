@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use PhpParser\Builder;
 
 abstract class BasicCrudController extends Controller
 {
@@ -20,11 +21,24 @@ abstract class BasicCrudController extends Controller
 
     abstract protected function resourceCollection(): string;
 
-    public function index()
+    public function index(Request $request)
     {
-        $data = ! $this->paginationSize ? $this->model()::all() : $this->model()::paginate($this->paginationSize);
+
+        $perPage = (int) $request->get('per_page', $this->defaultPerPage);
+        $hasFilter = in_array(Filterable::class, class_uses($this->model()));
+
+        $query = $this->queryBuilder();
+
+        if ($hasFilter) {
+            $query = $query->filter($request->all());
+        }
+
+        $data = $request->has('all') || !$this->defaultPerPage
+            ? $query->get()
+            : $query->paginate($perPage);
 
         $resourceCollectionClass = $this->resourceCollection();
+
         $refClass = new \ReflectionClass($this->resourceCollection());
 
         return $refClass->isSubclassOf(ResourceCollection::class)
@@ -79,5 +93,10 @@ abstract class BasicCrudController extends Controller
         $keyName = (new $model())->getRouteKeyName();
 
         return $this->model()::where($keyName, $id)->firstOrFail();
+    }
+
+    protected function queryBuilder(): Builder
+    {
+        return $this->model()::query();
     }
 }
