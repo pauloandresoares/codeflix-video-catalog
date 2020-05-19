@@ -24,7 +24,7 @@ abstract class BasicCrudController extends Controller
     public function index(Request $request)
     {
 
-        $perPage = (int) $request->get('per_page', $this->defaultPerPage);
+        $perPage = (int) $request->get('per_page', $this->paginationSize);
         $hasFilter = in_array(Filterable::class, class_uses($this->model()));
 
         $query = $this->queryBuilder();
