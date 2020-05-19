@@ -4,65 +4,100 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use EloquentFilter\Filterable;
+use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Database\Eloquent\Builder;
 
 abstract class BasicCrudController extends Controller
 {
+    protected $paginationSize = 15;
 
-    protected abstract function model();
+    abstract protected function model(): string;
 
-    protected abstract function rulesStore();
+    abstract protected function rulesStore(): array;
 
-    protected abstract function rulesUpdate();
+    abstract protected function rulesUpdate(): array;
 
-    protected function findOrFail($id)
+    abstract protected function resource(): string;
+
+    abstract protected function resourceCollection(): string;
+
+    public function index(Request $request)
     {
-        $model = $this->model();
-        $keyName = (new $model)->getRouteKeyName();
 
-        return $this->model()::where($keyName, $id)->firstOrFail();
-    }
+        $perPage = (int) $request->get('per_page', $this->paginationSize);
+        $hasFilter = in_array(Filterable::class, class_uses($this->model()));
 
-    private $rules = [
-        'name' => 'required|max:255',
-        'is_active' => 'boolean'
-    ];
+        $query = $this->queryBuilder();
 
-    public function index()
-    {
-        return $this->model()::all();
+        if ($hasFilter) {
+            $query = $query->filter($request->all());
+        }
+
+        $data = $request->has('all') || !$this->paginationSize
+            ? $query->get()
+            : $query->paginate($perPage);
+
+        $resourceCollectionClass = $this->resourceCollection();
+
+        $refClass = new \ReflectionClass($this->resourceCollection());
+
+        return $refClass->isSubclassOf(ResourceCollection::class)
+            ? new $resourceCollectionClass($data)
+            : $resourceCollectionClass::collection($data);
     }
 
     public function store(Request $request)
     {
-        $validatedDate = $this->validate($request, $this->rulesStore());
-        $obj = $this->model()::create($validatedDate);
-        $obj->refresh();
+        $validatedData = $this->validate($request, $this->rulesStore());
 
-        return $obj;
-    }
+        $model = $this->model()::create($validatedData);
+        $model->refresh();
 
-    public function update(Request $request, $id)
-    {
-        $obj = $this->findOrFail($id);
-        $validatedData = $this->validate($request, $this->rulesUpdate());
-        $obj->update($validatedData);
+        $resource = $this->resource();
 
-        return $obj;
+        return new $resource($model);
     }
 
     public function show($id)
     {
-        $obj = $this->findOrFail($id);
+        $model = $this->findOrFail($id);
 
-        return $obj;
+        $resource = $this->resource();
+
+        return new $resource($model);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validatedData = $this->validate($request, $this->rulesUpdate());
+
+        $model = $this->findOrFail($id);
+        $model->update($validatedData);
+
+        $resource = $this->resource();
+
+        return new $resource($model);
     }
 
     public function destroy($id)
     {
-        $obj = $this->findOrFail($id);
-        $obj->delete();
+        $model = $this->findOrFail($id);
+        $model->delete();
 
         return response()->noContent();
     }
 
+    protected function findOrFail($id)
+    {
+        $model = $this->model();
+        $keyName = (new $model())->getRouteKeyName();
+
+        return $this->model()::where($keyName, $id)->firstOrFail();
+    }
+
+    protected function queryBuilder(): Builder
+    {
+        return $this->model()::query();
+    }
 }

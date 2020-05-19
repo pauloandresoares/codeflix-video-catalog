@@ -4,71 +4,81 @@ namespace Tests\Feature\Models;
 
 use App\Models\CastMember;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Ramsey\Uuid\Uuid;
 use Tests\TestCase;
 
-/**
- * Class CategoryTest
- * @package Tests\Feature\Models
- * @group feature
- * @group CastMember
- * @group CastMemberModel
- */
 class CastMemberTest extends TestCase
 {
-
     use DatabaseMigrations;
 
     public function testList()
     {
-        factory(CastMember::class)->create();
-        $cast_members = CastMember::all();
+        factory(CastMember::class, 1)->create();
+        $castMembers = CastMember::all();
 
-        $cast_memberKeys = array_keys($cast_members->first()->getAttributes());
+        $this->assertCount(1, $castMembers);
+
+        $castMemberKey = array_keys($castMembers->first()->getAttributes());
 
         $this->assertEqualsCanonicalizing(
-            ['id', 'name', 'type', 'created_at', 'updated_at', 'deleted_at'],
-            $cast_memberKeys
+            [
+                'id',
+                'name',
+                'type',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ],
+            $castMemberKey
         );
-
-        $this->assertCount(1, $cast_members);
     }
 
-    public function testCreateIsDirector()
+    public function testCreate()
     {
-        $cast_member = CastMember::create(['name' => 'teste2', 'type' => CastMember::TYPE_DIRECTOR]);
-        $this->assertEquals(CastMember::TYPE_DIRECTOR, $cast_member->type);
-    }
+        $types = [CastMember::TYPE_DIRECTOR, CastMember::TYPE_ACTOR];
 
-    public function testCreateIsActor()
-    {
-        $cast_member = CastMember::create(['name' => 'teste2', 'type' => CastMember::TYPE_ACTOR]);
-        $this->assertEquals(CastMember::TYPE_ACTOR, $cast_member->type);
+        foreach ($types as $type) {
+            $castMember = CastMember::create(['name' => 'test_name', 'type' => $type]);
+            $castMember->refresh();
+
+            $this->assertTrue(Uuid::isValid($castMember->id));
+            $this->assertEquals('test_name', $castMember->name);
+            $this->assertEquals($type, $castMember->type);
+        }
     }
 
     public function testUpdate()
     {
-        $cast_member = factory(CastMember::class)->create();
-        $data = ['name' => 'test_name_updated', 'type' => CastMember::TYPE_ACTOR];
-        $cast_member->update($data);
+        /** @var CastMember $castMember */
+        $castMember = factory(CastMember::class)->create([
+            'name' => 'test_name',
+            'type' => CastMember::TYPE_ACTOR,
+        ]);
+
+        $data = [
+            'name' => 'test_name_updated',
+            'type' => CastMember::TYPE_DIRECTOR,
+        ];
+
+        $castMember->update($data);
 
         foreach ($data as $key => $value) {
-            $this->assertEquals($value, $cast_member->{$key});
+            $this->assertEquals($value, $castMember->{$key});
         }
     }
 
     public function testDelete()
     {
-        $cast_member = factory(CastMember::class)->create();
-        $cast_member->delete();
+        /** @var CastMember $castMember */
+        $castMember = factory(CastMember::class)->create();
 
-        $this->assertEquals(0, CastMember::count());
+        $castMember->delete();
+        $this->assertNull(CastMember::find($castMember->id));
+
+        $castMember->restore();
+        $this->assertNotNull(CastMember::find($castMember->id));
+
+        $castMember->forceDelete();
+        $this->assertNull(CastMember::find($castMember->id));
     }
-
-    public function testValidUuid()
-    {
-        $cast_member = factory(CastMember::class)->create();
-        $this->assertTrue(is_string($cast_member->id));
-        $this->assertEquals(36, strlen($cast_member->id));
-    }
-
 }

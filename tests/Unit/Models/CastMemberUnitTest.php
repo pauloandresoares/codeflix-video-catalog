@@ -4,18 +4,16 @@ namespace Tests\Unit\Models;
 
 use App\Models\CastMember;
 use App\Models\Traits\Uuid;
+use EloquentFilter\Filterable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Tests\TestCase;
 
-/**
- * Class CategoryTest
- * @package Tests\Unit\Models
- * @group unit
- * @group CastMember
- * @group CastMemberModel
- */
 class CastMemberUnitTest extends TestCase
 {
+    /**
+     * @var CastMember
+     */
     private $castMember;
 
     protected function setUp(): void
@@ -25,13 +23,14 @@ class CastMemberUnitTest extends TestCase
         $this->castMember = new CastMember();
     }
 
+    public function testIfExtendsModelFromEloquent()
+    {
+        $this->assertInstanceOf(Model::class, $this->castMember);
+    }
+
     public function testIfUseTraits()
     {
-        $traits = [
-            Uuid::class,
-            SoftDeletes::class
-        ];
-
+        $traits = [SoftDeletes::class, Uuid::class, Filterable::class];
         $castMemberTraits = array_keys(class_uses(CastMember::class));
 
         $this->assertEquals($traits, $castMemberTraits);
@@ -39,43 +38,31 @@ class CastMemberUnitTest extends TestCase
 
     public function testFillableAttribute()
     {
-        $fillable = [
-            'name',
-            'type'
-        ];
+        $fillable = ['name', 'type'];
 
         $this->assertEquals($fillable, $this->castMember->getFillable());
     }
 
     public function testDatesAttribute()
     {
-        $castMemberDates = $this->castMember->getDates();
-        $dates = [
-            'created_at',
-            'updated_at',
-            'deleted_at'
-        ];
+        $dates = ['created_at', 'updated_at', 'deleted_at'];
 
         foreach ($dates as $date) {
-            $this->assertContains($date, $castMemberDates);
+            $this->assertContains($date, $this->castMember->getDates());
         }
 
-        $this->assertCount(count($dates), $castMemberDates);
+        $this->assertCount(count($dates), $this->castMember->getDates());
     }
 
     public function testCastsAttribute()
     {
-        $casts = [
-            'id' => 'string',
-            'type' => 'integer'
-        ];
+        $casts = ['id' => 'string'];
 
         $this->assertEquals($casts, $this->castMember->getCasts());
     }
 
-    public function testIncrementingAttribute()
+    public function testIncrementing()
     {
-
-        $this->assertFalse($this->castMember->getIncrementing());
+        $this->assertFalse($this->castMember->incrementing);
     }
 }
