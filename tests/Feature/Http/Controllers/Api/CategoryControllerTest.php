@@ -154,4 +154,8 @@ class CategoryControllerTest extends TestCase
     {
         return Category::class;
     }
+    function resource()
+    {
+        return CategoryResource::class;
+    }
 }

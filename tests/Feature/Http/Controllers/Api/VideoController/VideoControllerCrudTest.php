@@ -337,4 +337,9 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
     {
         return Video::class;
     }
+
+    function resource()
+    {
+        return VideoResource::class;
+    }
 }

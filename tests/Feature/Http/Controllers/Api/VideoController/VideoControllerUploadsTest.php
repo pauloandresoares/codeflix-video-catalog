@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Http\Controllers\Api\VideoController;
 
+use App\Http\Resources\VideoResource;
 use App\Models\Video;
 use Illuminate\Foundation\Testing\TestResponse;
 use Illuminate\Http\UploadedFile;
@@ -111,5 +112,10 @@ class VideoControllerUploadsTest extends BaseVideoControllerTestCase
     protected function model(): string
     {
         return Video::class;
+    }
+
+    function resource()
+    {
+        return VideoResource::class;
     }
 }

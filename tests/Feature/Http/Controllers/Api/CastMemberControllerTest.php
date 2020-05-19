@@ -133,4 +133,8 @@ class CastMemberControllerTest extends TestCase
     {
         return CastMember::class;
     }
+    function resource()
+    {
+        return CastMemberResource::class;
+    }
 }
