@@ -67,24 +67,35 @@ class VideoCrudTest extends BaseVideoTestCase
     public function testHandleRelations()
     {
         $video = factory(Video::class)->create();
+        $category = factory(Category::class)->create();
+        $genre = factory(Genre::class)->create();
+
+
         Video::handleRelations($video, []);
         $this->assertCount(0, $video->categories);
         $this->assertCount(0, $video->genres);
+        $video->refresh();
 
-        $category = factory(Category::class)->create();
-        Video::handleRelations($video, ['categories_id' => [$category->id]]);
+        Video::handleRelations($video, [
+            'categories_id' => [$category->id]
+        ]);
         $video->refresh();
         $this->assertCount(1, $video->categories);
 
-        $genre = factory(Genre::class)->create();
-        Video::handleRelations($video, ['genres_id' => [$genre->id]]);
+        Video::handleRelations($video, [
+            'genres_id' => [$genre->id]
+        ]);
         $video->refresh();
         $this->assertCount(1, $video->genres);
 
+
         $video->categories()->delete();
         $video->genres()->delete();
-
-        Video::handleRelations($video, ['categories_id' => $category->id, 'genres_id' => $genre->id]);
+        Video::handleRelations($video, [
+            'categories_id' => [$category->id],
+            'genres_id' => [$genre->id]
+        ]);
+        $video->refresh();
         $this->assertCount(1, $video->categories);
         $this->assertCount(1, $video->genres);
     }
