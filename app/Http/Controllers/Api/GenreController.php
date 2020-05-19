@@ -22,39 +22,35 @@ class GenreController extends BasicCrudController
         $validatedData = $this->validate($request, $this->rulesStore());
 
         $self = $this;
-
-        /** @var Genre $model */
-        $model = \DB::transaction(function () use ($request, $validatedData, $self) {
-            $model = $this->model()::create($validatedData);
-            $self->handleRelations($model, $request);
-            $model->refresh();
-
-            return $model;
+        return \DB::transaction(function () use($self, $request, $validatedData){
+            $genre = $this->model()::create($validatedData);
+            $self->handleRelations($genre, $request);
+            $genre->refresh();
+            $resource = $this->resource();
+            return new $resource($genre);
         });
-
-        $resource = $this->resource();
-
-        return new $resource($model);
     }
 
     public function update(Request $request, $id)
     {
+        $genre = $this->findOrFail($id);
+
         $validatedData = $this->validate($request, $this->rulesUpdate());
 
         $self = $this;
-
-        /** @var Genre $model */
-        $model = $this->findOrFail($id);
-        $model = \DB::transaction(function () use ($request, $validatedData, $self, $model) {
-            $model->update($validatedData);
-            $self->handleRelations($model, $request);
-
-            return $model;
+        return \DB::transaction(function () use($self, $request, $genre, $validatedData){
+            $genre->update($validatedData);
+            $self->handleRelations($genre, $request);
+            $resource = $this->resource();
+            return new $resource($genre);
         });
+    }
 
+    public function show($id)
+    {
+        $obj = $this->findOrFail($id);
         $resource = $this->resource();
-
-        return new $resource($model);
+        return new $resource($obj->load('categories'));
     }
 
     protected function handleRelations(Genre $genre, Request $request)
